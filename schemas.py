@@ -1,48 +1,43 @@
 """
-Database Schemas
+Database Schemas for Tirupati Balaji Ticket Booking
 
-Define your MongoDB collection schemas here using Pydantic models.
-These schemas are used for data validation in your application.
-
-Each Pydantic model represents a collection in your database.
-Model name is converted to lowercase for the collection name:
-- User -> "user" collection
-- Product -> "product" collection
-- BlogPost -> "blogs" collection
+Each Pydantic model represents a MongoDB collection.
+Collection name is the lowercase of the class name (e.g., Booking -> "booking").
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 from typing import Optional
 
-# Example schemas (replace with your own):
 
+class Booking(BaseModel):
+    """
+    Bookings collection schema
+    Collection name: "booking"
+    """
+    name: str = Field(..., description="Devotee full name", min_length=2)
+    email: EmailStr = Field(..., description="Contact email")
+    phone: str = Field(..., description="Contact phone number", min_length=8, max_length=15)
+    date: str = Field(..., description="Darshan date in YYYY-MM-DD format")
+    slot: str = Field(..., description="Time slot window e.g. 06:00-08:00")
+    tickets: int = Field(..., ge=1, le=10, description="Number of tickets")
+    darshan_type: str = Field(
+        "Sarva Darshan",
+        description="Darshan type (e.g., Sarva Darshan, Special Entry, VIP)",
+    )
+
+
+# Example schemas (kept for reference and potential future expansion)
 class User(BaseModel):
-    """
-    Users collection schema
-    Collection name: "user" (lowercase of class name)
-    """
-    name: str = Field(..., description="Full name")
-    email: str = Field(..., description="Email address")
-    address: str = Field(..., description="Address")
-    age: Optional[int] = Field(None, ge=0, le=120, description="Age in years")
-    is_active: bool = Field(True, description="Whether user is active")
+    name: str
+    email: EmailStr
+    address: Optional[str] = None
+    age: Optional[int] = Field(None, ge=0, le=120)
+    is_active: bool = True
+
 
 class Product(BaseModel):
-    """
-    Products collection schema
-    Collection name: "product" (lowercase of class name)
-    """
-    title: str = Field(..., description="Product title")
-    description: Optional[str] = Field(None, description="Product description")
-    price: float = Field(..., ge=0, description="Price in dollars")
-    category: str = Field(..., description="Product category")
-    in_stock: bool = Field(True, description="Whether product is in stock")
-
-# Add your own schemas here:
-# --------------------------------------------------
-
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+    title: str
+    description: Optional[str] = None
+    price: float = Field(..., ge=0)
+    category: str
+    in_stock: bool = True
